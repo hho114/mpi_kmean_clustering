@@ -10,4 +10,4 @@ main: headers main.c
 	mpicc main.c
 
 clean:
-	rm *.out
+	rm *.o

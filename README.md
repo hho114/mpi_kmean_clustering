@@ -41,7 +41,7 @@ Standard: mpicc main.c && mpirun -n "number process" a.out 2 2 "number seeds"
 
 ```terminal
 
- mpicc main.c && mpirun -n 6 a.out 2 2 100 && gnuplot graphs/2_kmean_graph.gp
+ mpicc main.c && mpirun -n 10 a.out 2 2 100 && gnuplot graphs/2_kmean_graph.gp
 
 ```
 
@@ -64,7 +64,7 @@ Standard: mpicc main.c && mpirun -n "number process" a.out 3 2 "number seeds"
 
 ```terminal
 
-  mpicc main.c && mpirun -n 6 a.out 3 2 100 && gnuplot graphs/3_kmean_graph.gp
+  mpicc main.c && mpirun -n 10 a.out 3 2 100 && gnuplot graphs/3_kmean_graph.gp
 
 ```
 
