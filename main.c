@@ -6,32 +6,28 @@
 #include <string.h>
 #include "functions.h"
 
-
-
 int main(int argc, char **argv)
 {
     if (argc != 4)
     {
-        fprintf(stderr,
-                "Usage:mpirun -n <number process> <compile file> <k-mean number> <number dimensions> <number seeds> \n");
+        perror("Possible wrong command input\nStandard: mpirun -n <number process> <compile file> <k-mean number> <number dimensions> <number seeds> \n");
         exit(1);
     }
 
-    // Get stuff from command line:
-    // number of processors comes from mpirun command line after -n
+    
     int k = atoi(argv[1]);         // number of clusters.
     int dimension = atoi(argv[2]); // dimension of data.
     int numberOfSeed = atoi(argv[3]); // number of seeds per processor.
     double start, end; //time start and end
                        
-    srand(time(NULL)); // Seed the random number generator to get different results each time
-
     // Initial MPI and find process rank and number of processes.
     MPI_Init(NULL, NULL);
     int rank, sizeRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &sizeRank);
     MPI_Barrier(MPI_COMM_WORLD);
+
+    srand(time(NULL)); // Seed the random number generator to get different results each time
 
     start = MPI_Wtime();//start count the time
 
