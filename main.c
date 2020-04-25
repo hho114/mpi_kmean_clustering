@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi/mpi.h>
-#include <assert.h>
 #include <unistd.h>
 #include <string.h>
 #include "functions.h"
@@ -32,21 +31,19 @@ int main(int argc, char **argv)
     start = MPI_Wtime();//start count the time
 
     float *seeds;
-    assert(seeds = malloc(numberOfSeed * dimension * sizeof(float)));
-    // The sum of seeds assigned to each cluster by this process.
-    // k vectors of d elements.
-    float *sums;
-    assert(sums = malloc(k * dimension * sizeof(float)));
+    seeds = malloc(numberOfSeed * dimension * sizeof(float));
+    float *sums;     // The sum of seeds assigned to each cluster by this process.
+    sums = malloc(k * dimension * sizeof(float));
     // The number of seeds assigned to each cluster by this process. k integers.
     int *counts;
-    assert(counts = malloc(k * sizeof(int)));
+    counts = malloc(k * sizeof(int));
     // The current centroids against which seeds are being compared.
     // These are shipped to the process by the root process.
     float *centroids;
-    assert(centroids = malloc(k * dimension * sizeof(float)));
+    centroids = malloc(k * dimension * sizeof(float));
     // The cluster assignments for each site.
     int *labels;
-    assert(labels = malloc(numberOfSeed * sizeof(int)));
+    labels = malloc(numberOfSeed * sizeof(int));
 
     int counter = 0;
     
@@ -70,9 +67,9 @@ int main(int argc, char **argv)
 
         inittialCentroids(centroids, k, dimension);
         counter++;
-        assert(seedSums = malloc(k * dimension * sizeof(float)));
-        assert(seedCounts = malloc(k * sizeof(int)));
-        assert(allLabels = malloc(sizeRank * numberOfSeed * sizeof(int)));
+        seedSums = malloc(k * dimension * sizeof(float));
+        seedCounts = malloc(k * sizeof(int));
+        allLabels = malloc(sizeRank * numberOfSeed * sizeof(int));
     }
 
     // Root sends each process its share of seeds.
@@ -93,14 +90,14 @@ int main(int argc, char **argv)
         for (int i = 0; i < k; i++)
             counts[i] = 0;
 
-        // Find the closest centroid to each site and assign to cluster.
-        float *site = seeds;
-        for (int i = 0; i < numberOfSeed; i++, site += dimension)
+        // Find the closest centroid to each seed and assign to cluster.
+        float *seed = seeds;
+        for (int i = 0; i < numberOfSeed; i++, seed += dimension)
         {
-            int cluster = assignSeed(site, centroids, k, dimension);
+            int cluster = assignSeed(seed, centroids, k, dimension);
             // Record the assignment of the site to the cluster.
             counts[cluster]++;
-            addSeed(site, &sums[cluster * dimension], dimension);
+            addSeed(seed, &sums[cluster * dimension], dimension);
         }
 
         // Gather and sum at root all cluster sums for individual processes.
@@ -134,10 +131,10 @@ int main(int argc, char **argv)
     }
 
     // Now centroids are fixed, so compute a final label for each site.
-    float *site = seeds;
-    for (int i = 0; i < numberOfSeed; i++, site += dimension)
+    float *seed = seeds;
+    for (int i = 0; i < numberOfSeed; i++, seed += dimension)
     {
-        labels[i] = assignSeed(site, centroids, k, dimension);
+        labels[i] = assignSeed(seed, centroids, k, dimension);
     }
 
     // Gather all labels into root process.

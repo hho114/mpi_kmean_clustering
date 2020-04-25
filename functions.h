@@ -1,12 +1,12 @@
 
 
 // Distance**2 between d-vectors pointed to by v1, v2.
-float distanceBetween(const float *v1, const float *v2, const int d)
+float distanceBetween(const float *point1, const float *point2, const int dimension)
 {
     float dist = 0.0;
-    for (int i = 0; i < d; i++)
+    for (int i = 0; i < dimension; i++)
     {
-        float diff = v1[i] - v2[i];
+        float diff = point1[i] - point2[i];
         dist += diff * diff;
     }
     return dist;
@@ -14,15 +14,15 @@ float distanceBetween(const float *v1, const float *v2, const int d)
 
 // Assign a seed to the correct cluster by computing its distances to
 // each cluster centroid.
-int assignSeed(const float *site, float *centroids,
-               const int k, const int d)
+int assignSeed(const float *seed, float *centroids,
+               const int k, const int dimension)
 {
     int bestCluster = 0;
-    float bestDist = distanceBetween(site, centroids, d);
-    float *centroid = centroids + d;
-    for (int c = 1; c < k; c++, centroid += d)
+    float bestDist = distanceBetween(seed, centroids, dimension);
+    float *centroid = centroids + dimension;
+    for (int c = 1; c < k; c++, centroid += dimension)
     {
-        float dist = distanceBetween(site, centroid, d);
+        float dist = distanceBetween(seed, centroid, dimension);
         if (dist < bestDist)
         {
             bestCluster = c;
@@ -33,16 +33,16 @@ int assignSeed(const float *site, float *centroids,
 }
 
 // Add a seed (vector) into a sum of seeds (vector).
-void addSeed(const float *site, float *sum, const int d)
+void addSeed(const float *seed, float *sum, const int dimension)
 {
-    for (int i = 0; i < d; i++)
+    for (int i = 0; i < dimension; i++)
     {
-        sum[i] += site[i];
+        sum[i] += seed[i];
     }
 }
 
 // Print the centroids one per line.
-void notifyChangeCentroids(float *centroids, const int k, const int d, int *counter)
+void notifyChangeCentroids(float *centroids, const int k, const int dimension, int *counter)
 {
     FILE *fpo;
    if(*counter == 1)
@@ -60,7 +60,7 @@ void notifyChangeCentroids(float *centroids, const int k, const int d, int *coun
     printf("New centroids:\n");
     for (int i = 0; i < k; i++)
     {
-        for (int j = 0; j < d; j++, p++)
+        for (int j = 0; j < dimension; j++, p++)
         {
             printf("%f ", *p);
             fprintf(fpo, "%f\t", *p);
@@ -76,7 +76,7 @@ void notifyChangeCentroids(float *centroids, const int k, const int d, int *coun
    
 }
 
-void inittialCentroids(float *centroids, const int k, const int d)
+void inittialCentroids(float *centroids, const int k, const int dimension)
 {
     FILE *fpo = fopen("./data/init_centroids.dat", "w");
 
@@ -84,7 +84,7 @@ void inittialCentroids(float *centroids, const int k, const int d)
     printf("Initital centroids:\n");
     for (int i = 0; i < k; i++)
     {
-        for (int j = 0; j < d; j++, p++)
+        for (int j = 0; j < dimension; j++, p++)
         {
             printf("%f ", *p);
             fprintf(fpo, "%f\t", *p);
@@ -100,7 +100,7 @@ void inittialCentroids(float *centroids, const int k, const int d)
 float *createRandomNums(const int totalSeeds)
 {
     float *rand_nums = (float *)malloc(sizeof(float) * totalSeeds);
-    assert(rand_nums != NULL);
+    rand_nums != NULL;
     for (int i = 0; i < totalSeeds; i++)
     {
         rand_nums[i] = (rand() / (float)RAND_MAX);
