@@ -32,25 +32,20 @@ For example:
 
 The program will print process of kmean algorithm change centroids and print the final result which show the seeds x y coordinates and centroid tag number.
 
-For better understanding how k-mean work, we develop program to ouput image file which show how the centroids changes. However this will only work for 2 dimension and k number limit to 3.
-
-*Note: Remember remove old data for new graph
-
-```terminal
-
-rm data/* images/*
-
-```
+For better understanding how k-mean work, we develop program to ouput image files which show how the centroids changes. However this will only work for 2 dimension and k number limit to 3.
 
 ## 2 Kmean Clustering
 
 Use this command to create kmean cluster with 2 clusters and 100 seeds per cluster graph:
+Standard: mpicc main.c && mpirun -n "number process" a.out 2 2 "number seeds"
 
 ```terminal
 
- mpicc main.c && mpirun -n 6 a.out 2 2 100 && gnuplot 2_kmean_graphs.gp
+ mpicc main.c && mpirun -n 6 a.out 2 2 100 && gnuplot graphs/2_kmean_graph.gp
 
 ```
+
+The output will look like this:
 
 Changing centroids Process
 
@@ -64,11 +59,16 @@ Final centroid when finish
 
 Use this command to create kmean cluster with 3 clusters and 100 seeds per cluster graph:
 
+Standard: mpicc main.c && mpirun -n "number process" a.out 3 2 "number seeds"
+
+
 ```terminal
 
-  mpicc main.c && mpirun -n 6 a.out 3 2 100 && gnuplot 3_kmean_graphs.gp
+  mpicc main.c && mpirun -n 6 a.out 3 2 100 && gnuplot graphs/3_kmean_graph.gp
 
 ```
+
+The output will look like this:
 
 Changing centroids Process
 
@@ -78,4 +78,10 @@ Final centroid when finish
 
 ![](images/3k_final_centroids.png)
 
-## Time Consuming
+### Shortcut command to run both method above
+
+```terminal
+
+make
+
+```

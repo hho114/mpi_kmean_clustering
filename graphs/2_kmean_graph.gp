@@ -23,7 +23,7 @@ set terminal png enhanced
 set output './images/2k_final_centroids.png'
 plot './data/output.dat' using 1:2 with points linestyle 1 title 'Cluster A', \
 	'./data/output1.dat' using 1:2 with points linestyle 2 title 'Cluster B', \
-    './data/centroids.dat' using 1:2 with points linestyle 3 title 'Centroids'
+    './data/final_centroids.dat' using 1:2 with points linestyle 3 title 'Centroids'
 
 
 set terminal png enhanced
