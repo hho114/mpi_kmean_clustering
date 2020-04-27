@@ -5,6 +5,8 @@
 #include <string.h>
 #include "functions.h"
 
+#define MAX_ITERATIONS 10000
+
 int main(int argc, char **argv)
 {
     if (argc != 4)
@@ -77,8 +79,8 @@ int main(int argc, char **argv)
                 dimension * numberOfSeed, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
     float distance = 1.0; // Will tell us if centroids have moved.
-
-    while (distance > 0.00001)
+    int counter = 0;
+    while (distance > 0.00001 && counter < MAX_ITERATIONS)
     { // While they've moved...
 
         // Broadcast the current cluster centroids to all processes.
@@ -128,6 +130,7 @@ int main(int argc, char **argv)
         }
         // Broadcast a better distance.  All processes will use this in the loop test.
         MPI_Bcast(&distance, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+        counter++;
     }
 
     // Now centroids are fixed, so compute a final label for each site.
@@ -140,6 +143,8 @@ int main(int argc, char **argv)
     // Gather all labels into root process.
     MPI_Gather(labels, numberOfSeed, MPI_INT,
                allLabels, numberOfSeed, MPI_INT, 0, MPI_COMM_WORLD);
+
+
 
     // Root can print out all seeds and labels.
     if ((rank == 0) && 1)
