@@ -18,6 +18,22 @@ Darren Vu vuchampion@csu.fullerton.edu
 
 Note: This program was tested and compiled on Linux operation system
 
+## Implement MPI
+
+Consider N data points each of it is vector and P processors.
+
+Step 1: Assign N/P data points to each processor.
+
+Step 2: Node 0 randomly choose K points and assigns them as cluster means and broadcast.
+
+Step 3: In each processor for each data point find membership using the cluster mean.
+
+Step 4: Recalculate local means for each cluster in each processor.
+
+Step 5: Globally broadcast all local means for each processor find the global mean.
+
+Step 6: Go to step (3) and repeat until the number of iterations > 10000 or number of points where membership  has changed is less than 0.1 %.
+
 ## How to use
 
 Go to this project mpi_kmean_clustering directory, and use mpicc to compile the main.c file (mpicc main.c), then run the compile file with four input arguements.(mpirun -n "number process" a.out "k number or number of cluster" "number dimension" "total seed number"
