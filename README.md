@@ -36,7 +36,7 @@ Step 6: Go to step (3) and repeat until the number of iterations > 10000 or numb
 
 ## How to use
 
-Go to this project mpi_kmean_clustering directory, and use mpicc to compile the main.c file (mpicc main.c), then run the compile file with four input arguements.(mpirun -n "number process" a.out "k number or number of cluster" "number dimension" "total seed number"
+Go to this project mpi_kmean_clustering directory, and use mpicc to compile the main.c file (mpicc main.c), then run the compile file with four input arguements.(mpirun -n "number process" a.out "k number or number of cluster" "number dimension" "total data point"
 
 For example:
 
@@ -46,14 +46,14 @@ For example:
 
 ```
 
-The program will print process of kmean algorithm change centroids and print the final result which show the seeds x y coordinates and centroid tag number.
+The program will print process of kmean algorithm change centroids and print the final result which show the point x y coordinates and centroid tag number.
 
 For better understanding how k-mean work, we develop program to ouput image files which show how the centroids changes. However this will only work for 2 dimension and k number limit to 3.
 
 ## 2 Kmean Clustering
 
-Use this command to create kmean cluster with 2 clusters and 100 seeds per cluster graph:
-Standard: mpicc main.c && mpirun -n "number process" a.out 2 2 "number seeds"
+Use this command to create kmean cluster with 2 clusters and 100 data points per cluster graph:
+Standard: mpicc main.c && mpirun -n "number process" a.out 2 2 "number data points"
 
 ```terminal
 
@@ -73,10 +73,9 @@ Final centroid when finish
 
 ## 3 Kmean Clustering
 
-Use this command to create kmean cluster with 3 clusters and 100 seeds per cluster graph:
+Use this command to create kmean cluster with 3 clusters and 100 data points per cluster graph:
 
-Standard: mpicc main.c && mpirun -n "number process" a.out 3 2 "number seeds"
-
+Standard: mpicc main.c && mpirun -n "number process" a.out 3 2 "number data points"
 
 ```terminal
 
