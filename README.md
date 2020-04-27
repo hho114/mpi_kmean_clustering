@@ -32,7 +32,7 @@ Step 4: Recalculate local means for each cluster in each processor.
 
 Step 5: Globally broadcast all local means for each processor find the global mean.
 
-Step 6: Go to step (3) and repeat until the number of iterations > 10000 or number of points where membership  has changed is less than 0.1 %.
+Step 6: Go to step (3) and repeat until the number of iterations > 10000 or number of points where membership has changed is less than 0.001%.
 
 ## How to use
 
