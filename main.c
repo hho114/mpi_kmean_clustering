@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
     float distance = 1.0; // Will tell us if centroids have moved.
     int counter = 0;
-    while (distance > 0.00001 && counter < MAX_ITERATIONS)
+    while (distance > 0.001 && counter < MAX_ITERATIONS)
     { // While they've moved...
 
         // Broadcast the current cluster centroids to all processes.
