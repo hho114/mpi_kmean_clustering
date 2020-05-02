@@ -15,10 +15,10 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    int k = atoi(argv[1]);         // number of clusters.
-    int dimension = atoi(argv[2]); // dimension of data.
+    int k = atoi(argv[1]);          // number of clusters.
+    int dimension = atoi(argv[2]);  // dimension of data.
     int totalPoint = atoi(argv[3]); // total point input
-    double start, end;             //time start and end
+    double start, end;              //time start and end
     // Initial MPI and find process rank and number of processes.
     MPI_Init(NULL, NULL);
     int rank, sizeRank;
@@ -28,9 +28,9 @@ int main(int argc, char **argv)
 
     srand(time(NULL)); // Seed the random number generator to get different results each time
     // int totalPoint = 1000;
-    int pointsPerProcess = totalPoint/sizeRank; //number points per process
-    start = MPI_Wtime();     //start count the time
-    int counter = 0;         //counter until 10000
+    int pointsPerProcess = totalPoint / sizeRank; //number points per process
+    start = MPI_Wtime();                          //start count the time
+    int counter = 0;                              //counter until 10000
     // - The points assigned to each cluster by each process.
     // - The points get back from each process.
     // - The current centroids.
@@ -40,23 +40,21 @@ int main(int argc, char **argv)
     // - The labels for each cluster.
     int *counts, *labels;
 
-    
     recvPoints = malloc(pointsPerProcess * dimension * sizeof(float)); // All points for all the processes.
-    points = malloc(k * dimension * sizeof(float));                // Sum of points assigned to each cluster by all processes.
-    counts = malloc(k * sizeof(int)); // Sisze of each cluster
+    points = malloc(k * dimension * sizeof(float));                    // Sum of points assigned to each cluster by all processes.
+    counts = malloc(k * sizeof(int));                                  // Sisze of each cluster
     centroids = malloc(k * dimension * sizeof(float));
     labels = malloc(pointsPerProcess * sizeof(int)); // The labels for each cluster.
 
-    
-    float *allPoints = NULL;// All points for all the processes
+    float *allPoints = NULL;   // All points for all the processes
     float *pointSums = NULL;   // Sum of points assigned to each cluster by all processes.
     int *clusterCounts = NULL; // Size of each cluster
     int *allLabels;            // Result of program: The labels for each cluster.
 
     if (rank == 0)
     {
-        
-        allPoints = createRandomNums(dimension * totalPoint);//create random number from 0 to 1
+
+        allPoints = createRandomNums(dimension * totalPoint); //create random number from 0 to 1
         // Take the first few k points as the initial cluster centroids.
         for (int i = 0; i < k * dimension; i++)
         {
@@ -101,8 +99,8 @@ int main(int argc, char **argv)
         {
             int clusterNum = assignLabel(pointsAssign, centroids, k, dimension);
             // Record the assignment of the site to the cluster.
-            counts[clusterNum]++; //increase size of point in this cluster
-            addPoint(pointsAssign, &points[clusterNum * dimension], dimension);// add point into its cluster
+            counts[clusterNum]++;                                               //increase size of point in this cluster
+            addPoint(pointsAssign, &points[clusterNum * dimension], dimension); // add point into its cluster
         }
 
         // Gather and sum at root all cluster sums for individual processes.
@@ -117,14 +115,13 @@ int main(int argc, char **argv)
             {
                 for (int j = 0; j < dimension; j++)
                 {
-                    
+
                     pointSums[dimension * i + j] /= clusterCounts[i];
-                  
                 }
             }
-            // Get mean distance in cluster. 
+            // Get mean distance in cluster.
             distance = distanceBetween(pointSums, centroids, dimension * k);
-            printf("Current mean distance: %f\n", distance);//If mean distance is zero, it mean the distance have not change and convergence progess is done
+            printf("Current mean distance: %f\n", distance); //If mean distance is zero, it mean the distance have not change and convergence progess is done
             // Copy new centroids from pointSums into centroids.
             for (int i = 0; i < k * dimension; i++)
             {
@@ -142,7 +139,6 @@ int main(int argc, char **argv)
     for (int i = 0; i < pointsPerProcess; i++, pointsAssign += dimension)
     {
         labels[i] = assignLabel(pointsAssign, centroids, k, dimension);
-        
     }
 
     // Gather all labels into root process.

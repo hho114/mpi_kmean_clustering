@@ -98,3 +98,7 @@ Final centroid when finish
 make
 
 ```
+
+### Convergence of k-means demonstrate
+
+![](images/K-means_convergence.gif)
