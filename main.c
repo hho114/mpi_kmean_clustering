@@ -15,12 +15,10 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    
     int k = atoi(argv[1]);         // number of clusters.
     int dimension = atoi(argv[2]); // dimension of data.
-    int numberOfSeed = atoi(argv[3]); // number of seeds per processor.
-    double start, end; //time start and end
-                       
+    int totalPoint = atoi(argv[3]); // total point input
+    double start, end;             //time start and end
     // Initial MPI and find process rank and number of processes.
     MPI_Init(NULL, NULL);
     int rank, sizeRank;
@@ -29,125 +27,130 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
 
     srand(time(NULL)); // Seed the random number generator to get different results each time
+    // int totalPoint = 1000;
+    int pointsPerProcess = totalPoint/sizeRank; //number points per process
+    start = MPI_Wtime();     //start count the time
+    int counter = 0;         //counter until 10000
+    // - The points assigned to each cluster by each process.
+    // - The points get back from each process.
+    // - The current centroids.
+    float *recvPoints, *points, *centroids;
 
-    start = MPI_Wtime();//start count the time
+    // - The number of point assigned to each cluster by each process.
+    // - The labels for each cluster.
+    int *counts, *labels;
 
-    float *seeds;
-    seeds = malloc(numberOfSeed * dimension * sizeof(float));
-    float *sums;     // The sum of seeds assigned to each cluster by this process.
-    sums = malloc(k * dimension * sizeof(float));
-    // The number of seeds assigned to each cluster by this process. k integers.
-    int *counts;
-    counts = malloc(k * sizeof(int));
-    // The current centroids against which seeds are being compared.
-    // These are shipped to the process by the root process.
-    float *centroids;
-    centroids = malloc(k * dimension * sizeof(float));
-    // The cluster assignments for each site.
-    int *labels;
-    labels = malloc(numberOfSeed * sizeof(int));
-
-    int counter = 0;
     
-    // All the seeds for all the processes.
-    // numberOfSeed * sizeRank vectors of d floats.
-    float *allSeeds = NULL;
-    // Sum of seeds assigned to each cluster by all processes.
-    float *seedSums = NULL;
-    // Number of seeds assigned to each cluster by all processes.
-    int *seedCounts = NULL;
-    // Result of program: a cluster label for each seed.
-    int *allLabels;
+    recvPoints = malloc(pointsPerProcess * dimension * sizeof(float)); // All points for all the processes.
+    points = malloc(k * dimension * sizeof(float));                // Sum of points assigned to each cluster by all processes.
+    counts = malloc(k * sizeof(int)); // Sisze of each cluster
+    centroids = malloc(k * dimension * sizeof(float));
+    labels = malloc(pointsPerProcess * sizeof(int)); // The labels for each cluster.
+
+    
+    float *allPoints = NULL;// All points for all the processes
+    float *pointSums = NULL;   // Sum of points assigned to each cluster by all processes.
+    int *clusterCounts = NULL; // Size of each cluster
+    int *allLabels;            // Result of program: The labels for each cluster.
+
     if (rank == 0)
     {
-        allSeeds = createRandomNums(dimension * numberOfSeed * sizeRank);
-        // Take the first k seeds as the initial cluster centroids.
+        
+        allPoints = createRandomNums(dimension * totalPoint);//create random number from 0 to 1
+        // Take the first few k points as the initial cluster centroids.
         for (int i = 0; i < k * dimension; i++)
         {
-            centroids[i] = allSeeds[i];
+            centroids[i] = allPoints[i];
         }
 
-        inittialCentroids(centroids, k, dimension);
+        inittialCentroids(centroids, k, dimension); //print centroids
         counter++;
-        seedSums = malloc(k * dimension * sizeof(float));
-        seedCounts = malloc(k * sizeof(int));
-        allLabels = malloc(sizeRank * numberOfSeed * sizeof(int));
+        pointSums = malloc(k * dimension * sizeof(float));
+        clusterCounts = malloc(k * sizeof(int));
+        allLabels = malloc(sizeRank * pointsPerProcess * sizeof(int));
     }
 
-    // Root sends each process its share of seeds.
-    MPI_Scatter(allSeeds, dimension * numberOfSeed, MPI_FLOAT, seeds,
-                dimension * numberOfSeed, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    // Root sends each process its share of clusters.
+    MPI_Scatter(allPoints, dimension * pointsPerProcess, MPI_FLOAT, recvPoints,
+                dimension * pointsPerProcess, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    // MPI_Scatter(allPoints, dimension * pointsPerProcess, MPI_FLOAT, recvPoints,
+    //             dimension * pointsPerProcess, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-    float distance = 1.0; // Will tell us if centroids have moved.
-    int counter = 0;
-    while (distance > 0.001 && counter < MAX_ITERATIONS)
-    { // While they've moved...
+    float distance = 1;
+
+    while (distance > 0.00001 && counter < MAX_ITERATIONS) //while counter less than 10000 or distance greater than 0.0001 do prcess n work
+    {
 
         // Broadcast the current cluster centroids to all processes.
         MPI_Bcast(centroids, k * dimension, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
         // Each process reinitializes its cluster accumulators.
         for (int i = 0; i < k * dimension; i++)
-            sums[i] = 0.0;
-        for (int i = 0; i < k; i++)
-            counts[i] = 0;
-
-        // Find the closest centroid to each seed and assign to cluster.
-        float *seed = seeds;
-        for (int i = 0; i < numberOfSeed; i++, seed += dimension)
         {
-            int cluster = assignSeed(seed, centroids, k, dimension);
+            points[i] = 0.0;
+        }
+
+        for (int i = 0; i < k; i++)
+        {
+            counts[i] = 0;
+        }
+
+        // Find the closest centroid to each point and assign to cluster.
+        float *pointsAssign = recvPoints;
+        for (int i = 0; i < pointsPerProcess; i++, pointsAssign += dimension)
+        {
+            int clusterNum = assignLabel(pointsAssign, centroids, k, dimension);
             // Record the assignment of the site to the cluster.
-            counts[cluster]++;
-            addSeed(seed, &sums[cluster * dimension], dimension);
+            counts[clusterNum]++; //increase size of point in this cluster
+            addPoint(pointsAssign, &points[clusterNum * dimension], dimension);// add point into its cluster
         }
 
         // Gather and sum at root all cluster sums for individual processes.
-        MPI_Reduce(sums, seedSums, k * dimension, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
-        MPI_Reduce(counts, seedCounts, k, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        MPI_Reduce(points, pointSums, k * dimension, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
+        // Gather and sum count of point in each cluster
+        MPI_Reduce(counts, clusterCounts, k, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (rank == 0)
         {
-            // Root process computes new centroids by dividing sums per cluster
-            // by count per cluster.
+            // Root process computes new centroids by dividing sums per cluster by count per cluster.
             for (int i = 0; i < k; i++)
             {
                 for (int j = 0; j < dimension; j++)
                 {
-                    int dij = dimension * i + j;
-                    seedSums[dij] /= seedCounts[i];
+                    
+                    pointSums[dimension * i + j] /= clusterCounts[i];
+                  
                 }
             }
-            // Have the centroids changed much?
-            distance = distanceBetween(seedSums, centroids, dimension * k);
-            printf("Better average distance: %f\n", distance);
-            // Copy new centroids from seedSums into centroids.
+            // Get mean distance in cluster. 
+            distance = distanceBetween(pointSums, centroids, dimension * k);
+            printf("Current mean distance: %f\n", distance);//If mean distance is zero, it mean the distance have not change and convergence progess is done
+            // Copy new centroids from pointSums into centroids.
             for (int i = 0; i < k * dimension; i++)
             {
-                centroids[i] = seedSums[i];
+                centroids[i] = pointSums[i];
             }
-            notifyChangeCentroids(centroids, k, dimension, &counter);
+            notifyUpdateCentroids(centroids, k, dimension, &counter);
         }
-        // Broadcast a better distance.  All processes will use this in the loop test.
+        // Broadcast a better distance to all processes.
         MPI_Bcast(&distance, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
         counter++;
     }
 
-    // Now centroids are fixed, so compute a final label for each site.
-    float *seed = seeds;
-    for (int i = 0; i < numberOfSeed; i++, seed += dimension)
+    // Now centroids are fixed, so compute a final label for each cluster.
+    float *pointsAssign = recvPoints;
+    for (int i = 0; i < pointsPerProcess; i++, pointsAssign += dimension)
     {
-        labels[i] = assignSeed(seed, centroids, k, dimension);
+        labels[i] = assignLabel(pointsAssign, centroids, k, dimension);
+        
     }
 
     // Gather all labels into root process.
-    MPI_Gather(labels, numberOfSeed, MPI_INT,
-               allLabels, numberOfSeed, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(labels, pointsPerProcess, MPI_INT,
+               allLabels, pointsPerProcess, MPI_INT, 0, MPI_COMM_WORLD);
 
-
-
-    // Root can print out all seeds and labels.
-    if ((rank == 0) && 1)
+    // Root can print out all points and labels.
+    if (rank == 0)
     {
         printf("\nFinal clustering result with centroid tag:\n"
                "x\ty\ttag\n");
@@ -164,26 +167,26 @@ int main(int argc, char **argv)
             fprintf(fpc, "\n");
         }
 
-        float *seed = allSeeds;
-        for (int i = 0; i < sizeRank * numberOfSeed; i++, seed += dimension)
+        float *allLabelPoints = allPoints;
+        for (int i = 0; i < sizeRank * pointsPerProcess; i++, allLabelPoints += dimension)
         {
 
             for (int j = 0; j < dimension; j++)
             {
-                printf("%f ", seed[j]);
-                
+                printf("%f ", allLabelPoints[j]);
+
                 //Only for 2k and 3k with 2 dimension
                 if (allLabels[i] == 0)
                 {
-                    fprintf(fp, "%f\t", seed[j]);
+                    fprintf(fp, "%f\t", allLabelPoints[j]);
                 }
                 else if (allLabels[i] == 1)
                 {
-                    fprintf(fp1, "%f\t", seed[j]);
+                    fprintf(fp1, "%f\t", allLabelPoints[j]);
                 }
                 else if (allLabels[i] == 2)
                 {
-                    fprintf(fp2, "%f\t", seed[j]);
+                    fprintf(fp2, "%f\t", allLabelPoints[j]);
                 }
             }
             //Only for 2k and 3k with 2 dimension
