@@ -99,7 +99,11 @@ make
 
 ```
 
+<<<<<<< HEAD
 
 Convergence of k-means from Wikipedia
+=======
+### Convergence of k-means demonstrate
+>>>>>>> 8aa224601cc203b87c1d16c15e1748322e4b66ea
 
 ![](images/K-means_convergence.gif)
