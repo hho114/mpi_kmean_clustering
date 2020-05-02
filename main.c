@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 
     float distance = 1;
 
-    while (distance > 0.00001 && counter < MAX_ITERATIONS) //while counter less than 10000 or distance greater than 0.0001 do prcess n work
+    while (distance > 0 && counter < MAX_ITERATIONS) //while counter less than 10000 or distance greater than 0.0001 do prcess n work
     {
 
         // Broadcast the current cluster centroids to all processes.
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
         MPI_Reduce(counts, clusterCounts, k, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (rank == 0)
-        {
+        {   //Calculate mean of each cluster by dividing sum of point with its number of points
             // Root process computes new centroids by dividing sums per cluster by count per cluster.
             for (int i = 0; i < k; i++)
             {
@@ -118,9 +118,9 @@ int main(int argc, char **argv)
                     pointSums[dimension * i + j] /= clusterCounts[i];
                 }
             }
-            // Get mean distance in cluster.
+            // Check if all mean are equally
             distance = distanceBetween(pointSums, centroids, dimension * k);
-            printf("Current mean distance: %f\n", distance); //If mean distance is zero, it mean the distance have not change and convergence progess is done
+            printf("Current mean distance: %f\n", distance); //If mean distance is zero, It mean that all centroids have a been equally
             // Copy new centroids from pointSums into centroids.
             for (int i = 0; i < k * dimension; i++)
             {

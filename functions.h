@@ -1,4 +1,5 @@
-
+#ifndef FUNCTION
+#define FUNCTION
 // Calculate distance between point and centroid using the euclidean distance
 float distanceBetween(const float *point, const float *centroid, const int dimension)
 {
@@ -105,3 +106,5 @@ float *createRandomNums(const int totalPoints)
     }
     return rand_nums;
 }
+
+#endif
