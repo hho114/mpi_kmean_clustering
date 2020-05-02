@@ -71,8 +71,7 @@ int main(int argc, char **argv)
     // Root sends each process its share of clusters.
     MPI_Scatter(allPoints, dimension * pointsPerProcess, MPI_FLOAT, recvPoints,
                 dimension * pointsPerProcess, MPI_FLOAT, 0, MPI_COMM_WORLD);
-    // MPI_Scatter(allPoints, dimension * pointsPerProcess, MPI_FLOAT, recvPoints,
-    //             dimension * pointsPerProcess, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    
 
     float distance = 1;
 

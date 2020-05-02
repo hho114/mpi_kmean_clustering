@@ -1,5 +1,4 @@
 
-
 // Calculate distance between point and centroid using the euclidean distance
 float distanceBetween(const float *point, const float *centroid, const int dimension)
 {
