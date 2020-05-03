@@ -28,7 +28,7 @@ Step 3: In each processor for each data point find its cluster by calculating it
 
 Step 4: Calculate the mean distance each cluster, and update centroids for each cluster.
 
-Step 5: Go to step (3) and repeat until the number of iterations > 10000 or mean distance has changed is less than 0.00001.
+Step 5: Go to step (3) and repeat until the number of iterations > 10000 or mean distance has changed is less than 0.
 
 Step 6: Label all points with its cluster.
 
