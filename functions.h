@@ -98,7 +98,7 @@ void inittialCentroids(float *centroids, const int k, const int dimension)
 float *createRandomNums(const int totalPoints)
 {
     float *rand_nums = (float *)malloc(sizeof(float) * totalPoints);
-    rand_nums != NULL;
+    
     for (int i = 0; i < totalPoints; i++)
     {
         rand_nums[i] = (rand() / (float)RAND_MAX);

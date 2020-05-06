@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi/mpi.h>
+#include <time.h> 
 #include <unistd.h>
 #include <string.h>
 #include "functions.h"
+
 
 #define MAX_ITERATIONS 10000
 
