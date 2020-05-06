@@ -20,17 +20,17 @@ Note: This program was tested and compiled on Linux operation system
 
 ## Implement MPI
 
-Step 1: Create random data point numbers from 0 to 1, and assign partial number points to each processor.
+1. Create random data point numbers from 0 to 1, and assign partial number points to each processor. (MPI_Scatter)
 
-Step 2: Choose the first few K points as centroids and assign them to cluster.
+2. Choose the first few data points as centroids and assign them to clusters.
 
-Step 3: In each processor for each data point find its cluster by calculating its distance with centroids.
+3. In each processor for each data point choose the next one in the array tol make up one point based on dimension, for example 2 dimensions will be x and y. Then find it’s cluster by calculating it’s distance with centroids using the Euclidean distance formula. (MPI_bcast for centroid list and mean distance tracking if mean reach equally  among centroids)
 
-Step 4: Calculate the mean distance each cluster, and update centroids for each cluster.
+4. Calculate the mean distance of each cluster which is also a new centroid, and update centroids for each cluster. (MPI_Reduce to get points distance from each process)
 
-Step 5: Go to step (3) and repeat until the number of iterations > 10000 or mean distance has changed is less than 0.
+5. Repeat Step 3 until the number of iterations is greater than 10,000 or mean distance has changed less than 0, it means all centroids have equal distance to each other.
 
-Step 6: Label all points with its cluster.
+6. Label all points with it’s cluster and print the results
 
 ## How to use
 

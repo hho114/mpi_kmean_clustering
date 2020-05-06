@@ -116,13 +116,13 @@ int main(int argc, char **argv)
             {
                 for (int j = 0; j < dimension; j++)
                 {
-
-                    pointSums[dimension * i + j] /= clusterCounts[i];
+                    
+                    pointSums[dimension * i + j] /= clusterCounts[i];//sum distance in each cluster divide by number point in each cluster
                 }
             }
-            // Check if all mean are equally
+            
             distance = distanceBetween(pointSums, centroids, dimension * k);
-            printf("Current mean distance: %f\n", distance); //If mean distance is zero, It mean that all centroids have a been equally
+            printf("Current mean distance: %f\n", distance); //If mean distance is zero, It mean that all clusters found its centroids
             // Copy new centroids from pointSums into centroids.
             for (int i = 0; i < k * dimension; i++)
             {
